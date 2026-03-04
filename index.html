@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Liquidity Terminal - AI-Powered Financial Intelligence Platform">
+    <title>Liquidity Terminal - AI Financial Intelligence</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.4.0/dist/axios.min.js"></script>
+</head>
+<body>
+    <nav class="navbar" role="navigation">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">💰</span>
+                <span class="logo-text">Liquidity Terminal</span>
+            </div>
+            <div class="nav-links">
+                <button class="nav-btn active" data-view="dashboard">📊 Dashboard</button>
+                <button class="nav-btn" data-view="screener">🔍 Screener</button>
+                <button class="nav-btn" data-view="portfolio">💼 Portfolio</button>
+                <button class="nav-btn" data-view="markets">🌍 Markets</button>
+                <button class="nav-btn" data-view="ai-assistant">🤖 AI</button>
+            </div>
+            <div class="user-controls">
+                <button class="theme-toggle" id="themeToggle">🌙</button>
+                <div class="user-menu">
+                    <button class="user-btn" id="userBtn">👤 User</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>Featured Markets</h3>
+                <div class="market-list" id="marketList"></div>
+            </div>
+            <div class="sidebar-section">
+                <h3>Watchlist</h3>
+                <div class="watchlist-input-wrapper">
+                    <input type="text" id="watchlistInput" placeholder="Add symbol..." class="watchlist-input">
+                    <button class="add-btn" id="addWatchlistBtn">+</button>
+                </div>
+                <div id="watchlistItems" class="watchlist-items"></div>
+            </div>
+            <div class="sidebar-section">
+                <h3>Active Alerts</h3>
+                <button class="new-alert-btn" id="newAlertBtn">+ New Alert</button>
+                <div id="alertsList" class="alerts-list"></div>
+            </div>
+            <div class="sidebar-section">
+                <h3>Quick Stats</h3>
+                <div class="stat-row">
+                    <span class="stat-label">Portfolio</span>
+                    <span class="stat-value" id="quickPortfolioValue">$0.00</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">24h Change</span>
+                    <span class="stat-value" id="quick24hChange">+0.00%</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div class="error-notification" id="errorNotification"></div>
+
+            <!-- DASHBOARD -->
+            <section id="dashboard-view" class="view-container active">
+                <div class="dashboard-top">
+                    <div class="card market-bias-card">
+                        <h2 class="card-title">Market Bias Index</h2>
+                        <div class="bias-gauge" id="biasGauge">
+                            <div class="bias-bar">
+                                <div class="bias-indicator" id="biasIndicator"></div>
+                            </div>
+                            <div class="bias-label" id="biasLabel">Loading...</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h2 class="card-title">Market Overview</h2>
+                        <div id="marketSummary" class="market-summary"></div>
+                    </div>
+                    <div class="card">
+                        <h2 class="card-title">Sentiment</h2>
+                        <div id="sentimentMetrics" class="sentiment-metrics"></div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="card chart-card">
+                        <h2 class="card-title">Market Performance</h2>
+                        <div class="chart-wrapper"><canvas id="performanceChart"></canvas></div>
+                    </div>
+                    <div class="card chart-card">
+                        <h2 class="card-title">Crypto Prices</h2>
+                        <div class="chart-wrapper"><canvas id="cryptoChart"></canvas></div>
+                    </div>
+                    <div class="card chart-card">
+                        <h2 class="card-title">Sector Performance</h2>
+                        <div class="chart-wrapper"><canvas id="sectorChart"></canvas></div>
+                    </div>
+                    <div class="card chart-card">
+                        <h2 class="card-title">Volatility</h2>
+                        <div class="chart-wrapper"><canvas id="volatilityChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Market News</h2>
+                    <div class="tabs-wrapper">
+                        <button class="tab-btn active" data-tab="news">News</button>
+                        <button class="tab-btn" data-tab="events">Calendar</button>
+                        <button class="tab-btn" data-tab="changes">Changes</button>
+                    </div>
+                    <div class="tab-content active" data-content="news">
+                        <div id="newsFeed" class="news-feed"></div>
+                    </div>
+                    <div class="tab-content" data-content="events">
+                        <div id="economicCalendar" class="economic-calendar"></div>
+                    </div>
+                    <div class="tab-content" data-content="changes">
+                        <div id="whatChanged" class="changes-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SCREENER -->
+            <section id="screener-view" class="view-container">
+                <div class="card">
+                    <h1 class="section-title">Stock Screener</h1>
+                    <div class="screener-filters">
+                        <div class="filter-group">
+                            <label>Symbol</label>
+                            <input type="text" id="symbolFilter" placeholder="AAPL..." class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label>Sector</label>
+                            <select id="sectorFilter" class="filter-select">
+                                <option value="">All</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Finance">Finance</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Market Cap (B)</label>
+                            <input type="number" id="marketCapMin" placeholder="0" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label>P/E Ratio</label>
+                            <input type="number" id="peRatioMax" placeholder="50" class="filter-input">
+                        </div>
+                        <button id="screenBtn" class="btn-primary">🔍 Screen</button>
+                        <button id="resetScreenBtn" class="btn-secondary">↻ Reset</button>
+                    </div>
+                    <div id="screenerResults" class="screener-results"></div>
+                </div>
+            </section>
+
+            <!-- PORTFOLIO -->
+            <section id="portfolio-view" class="view-container">
+                <div class="portfolio-header">
+                    <h1 class="section-title">Portfolio Manager</h1>
+                    <button id="addPositionBtn" class="btn-primary">+ Add Position</button>
+                </div>
+                <div class="portfolio-stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Value</h3>
+                        <p class="stat-value" id="portfolioValue">$0.00</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Return</h3>
+                        <p class="stat-value" id="portfolioReturn">+0.00%</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Risk Score</h3>
+                        <p class="stat-value" id="riskScore">--</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Holdings</h3>
+                        <p class="stat-value" id="diversification">0</p>
+                    </div>
+                </div>
+                <div class="portfolio-content">
+                    <div class="card">
+                        <h2 class="card-title">Holdings</h2>
+                        <div id="portfolioHoldings" class="portfolio-holdings"></div>
+                    </div>
+                    <div class="card">
+                        <h2 class="card-title">Allocation</h2>
+                        <div class="chart-wrapper"><canvas id="allocationChart"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MARKETS -->
+            <section id="markets-view" class="view-container">
+                <h1 class="section-title">Global Markets</h1>
+                <div class="markets-tabs">
+                    <button class="market-tab active" data-market="stocks">Stocks</button>
+                    <button class="market-tab" data-market="crypto">Crypto</button>
+                    <button class="market-tab" data-market="commodities">Commodities</button>
+                </div>
+                <div id="marketsContent" class="markets-content"></div>
+            </section>
+
+            <!-- AI ASSISTANT -->
+            <section id="ai-assistant-view" class="view-container">
+                <div class="ai-container">
+                    <div class="ai-header">
+                        <h1>🤖 AI Financial Assistant</h1>
+                        <p>Ask questions about markets & investments</p>
+                    </div>
+                    <div id="chatHistory" class="chat-history"></div>
+                    <div class="chat-input-area">
+                        <textarea id="aiInput" placeholder="Ask me anything..." class="ai-input"></textarea>
+                        <button id="aiSendBtn" class="btn-primary">Send</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+    <div id="addPositionModal" class="modal">
+        <div class="modal-content">
+            <h2>Add Position</h2>
+            <form id="addPositionForm">
+                <input type="text" id="posSymbol" placeholder="Symbol" required>
+                <input type="number" id="posShares" placeholder="Shares" required>
+                <input type="number" id="posCost" placeholder="Cost per Share" required>
+                <button type="submit" class="btn-primary">Add</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="newAlertModal" class="modal">
+        <div class="modal-content">
+            <h2>Create Alert</h2>
+            <form id="newAlertForm">
+                <input type="text" id="alertSymbol" placeholder="Symbol" required>
+                <select id="alertType" required>
+                    <option value="">Select Type</option>
+                    <option value="price_above">Price Above</option>
+                    <option value="price_below">Price Below</option>
+                </select>
+                <input type="number" id="alertValue" placeholder="Value" required>
+                <button type="submit" class="btn-primary">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/services/api.service.js"></script>
+    <script src="js/services/storage.service.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
